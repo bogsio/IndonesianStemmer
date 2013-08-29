@@ -5,6 +5,7 @@ Simple Indonesian stemmer based on: http://www.illc.uva.nl/Research/Reports/MoL-
 
 Example
 =======
-
+```
 stemmer = IndonesianStemmer()
 print stemmer.stem(u'diakah')
+```
