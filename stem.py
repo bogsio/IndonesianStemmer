@@ -19,9 +19,34 @@ class IndonesianStemmer(StemmerI):
     def __init__(self):
         self.num_syllables = 0
         self.stem_derivational = True
-        
-
+    
     def stem(self, word):
+        word = word.lower()
+
+        if word.find('-') != (-1):
+            return self._stem_plural_word(word)
+        
+        return self._stem_singular_word(word)
+
+    def _stem_plural_word(self, word):
+        words = word.split('-')
+
+        if len(words) == 1:
+            return self._stem_singular_word(word)
+
+        suffixes = ['ku', 'mu', 'nya', 'lah', 'kah', 'tah', 'pun']
+        if words[-1] in suffixes and len(words) == 2:
+            return self._stem_singular_word(words[0])
+            
+        root_word1 = self._stem_singular_word(words[0])
+        root_word2 = self._stem_singular_word(words[1])
+
+        if root_word1 == root_word2:
+            return root_word1
+
+        return root_word1+'-'+root_word2
+
+    def _stem_singular_word(self, word):
         self.flags = 0
         # number of syllables == number of vowels
         self.num_syllables = len([c for c in word if self._is_vowel(c)])
@@ -37,7 +62,7 @@ class IndonesianStemmer(StemmerI):
             self._stem_derivational()
         
         return self.word
-    
+
     def _is_vowel(self, letter):
         """
         Vowels in indonesian
@@ -249,9 +274,11 @@ if __name__ == "__main__":
     assert stemmer.stem(u'pengatur') == u'atur'
     assert stemmer.stem(u'perlebar') == u'lebar'
     assert stemmer.stem(u'terbaca') == u'baca'
-    assert stemmer.stem(u'gulai') == u'gula'
+    assert stemmer.stem(u'menggarami') == u'garam'
     assert stemmer.stem(u'makanan') == u'makan'
     assert stemmer.stem(u'permainan') == u'main'
     assert stemmer.stem(u'kemenangan') == u'menang'
     assert stemmer.stem(u'berjatuhan') == u'jatuh'
     assert stemmer.stem(u'mengambili') == u'ambil'
+    assert stemmer.stem(u'lompat-lompatan') == u'lompat'
+    assert stemmer.stem(u'kasih-nya') == 'kasih'
